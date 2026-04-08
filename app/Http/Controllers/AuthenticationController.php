@@ -71,5 +71,87 @@ class AuthenticationController extends Controller
             'status' => 'success',
             'message' => 'logout successfully!'
         ]);
+
+    
 }
+
+    public function update(Request $request, $id){
+             $user = User::find($id);
+
+              if(!$user){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'user not found'
+            ]);
+        }
+
+         $fields = $request->validate([
+            'first_name' => 'sometimes|string',
+            'last_name' => 'sometimes|string',
+            'username' => 'sometimes|unique:users,username',
+            'email' => 'sometimes|unique:users,email',
+            'gender' => 'sometimes|in:male,female',
+            'phone' => 'sometimes',
+            'password' => 'sometimes|min:4|max:8'
+        ]);
+        if(isset($reqest->$fields['password'])){
+            $fields['password'] = Hash::make($fields['passowrd']);
+
+        }
+
+        $user->update($fields);
+        $user->save();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'user updated successfully!',
+            'updated field' => array_keys($fields),
+            'user' => $user
+        ]);
+
+
+    
+    }
+
+    public function destroy(Request $request, $id){
+        $user = User::find($id);
+
+        if(!$user){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'user not found'
+            ]);
+
+        }
+
+        $user->delete();
+
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'user deleted successfully'
+        ]);
+    }
+
+    public function index(){
+       $users = User::all();
+
+
+       return $users;
+    }
+
+    public function userFind(Request $request, $id){
+        $user = User::find($id);
+
+        if(!$user){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'user is not found'
+            ]);
+        }
+        return response()->json([
+            'status' => 'success',
+            'user' => $user
+        ]);
+    }
 }
